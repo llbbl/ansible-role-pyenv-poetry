@@ -82,3 +82,28 @@
   changed_when: global_python.rc == 0
   become: true
   become_user: "{{ primary_user_account }}"
+
+#############################
+# Install poetry
+# https://python-poetry.org/docs/
+#############################
+
+- name: Install pipx with pip
+  ansible.builtin.pip:
+    name: pipx
+    state: present
+    executable: "{{ user_home_dir }}/.pyenv/shims/pip"
+  become: true
+  become_user: "{{ primary_user_account }}"
+  environment:
+    PATH: "{{ user_home_dir }}/.pyenv/bin:{{ ansible_env.PATH }}"
+  when: install_poetry
+
+- name: Install Poetry with pipx
+  ansible.builtin.shell: |
+    pipx install poetry
+  become: true
+  become_user: "{{ primary_user_account }}"
+  environment:
+    PATH: "{{ ansible_env.PATH }}:{{ user_home_dir }}/.local/bin"
+  when: install_poetry
