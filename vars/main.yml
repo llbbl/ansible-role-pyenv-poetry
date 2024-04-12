@@ -1,0 +1,4 @@
+---
+# vars file for pyenv-poetry
+pyenv_root: "{{ user_home_dir }}/.pyenv"
+pyenv_executable: "{{ pyenv_root }}/bin/pyenv"

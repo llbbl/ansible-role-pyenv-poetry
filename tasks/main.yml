@@ -1,0 +1,84 @@
+---
+# tasks file for pyenv-poetry
+
+- name: Install required dependencies
+  ansible.builtin.apt:
+    name:
+      - build-essential
+      - libssl-dev
+      - zlib1g-dev
+      - libbz2-dev
+      - libreadline-dev
+      - libsqlite3-dev
+      - wget
+      - curl
+      - llvm
+      - libncurses5-dev
+      - libncursesw5-dev
+      - xz-utils
+      - tk-dev
+      - libffi-dev
+      - liblzma-dev
+      - python3-openssl
+      - git
+    state: present
+
+- name: Clone pyenv repository
+  ansible.builtin.git:
+    repo: https://github.com/pyenv/pyenv.git
+    dest: "{{ user_home_dir }}/.pyenv"
+    version: "{{ pyenv_version }}"
+
+- name: Add pyenv to PATH
+  ansible.builtin.lineinfile:
+    dest: "{{ user_home_dir }}/.zshrc"
+    line: 'export PATH="$HOME/.pyenv/bin:$PATH"'
+    state: present
+
+- name: Add pyenv init to shell
+  ansible.builtin.lineinfile:
+    dest: "{{ user_home_dir }}/.zshrc"
+    line: 'eval "$(pyenv init -)"'
+    state: present
+
+- name: Add pyenv env
+  ansible.builtin.lineinfile:
+    dest: "{{ user_home_dir }}/.zshrc"
+    line: 'export PYENV_ROOT="$HOME/.pyenv"'
+    state: present
+
+- name: Check if Python version exists # noqa command-instead-of-shell
+  ansible.builtin.shell: "{{ pyenv_executable }} versions --bare"
+  register: python_versions
+  ignore_errors: true
+  changed_when: false
+  become: true
+  become_user: "{{ primary_user_account }}"
+
+- name: Set python_version_exists fact
+  ansible.builtin.set_fact:
+    python_version_exists: "{{ python_versions.stdout_lines | select('equalto', python_version) | list | length > 0 }}"
+
+- name: "Install Python with pyenv" # noqa command-instead-of-shell
+  ansible.builtin.shell: "{{ pyenv_executable }} install '{{ python_version }}'"
+  when: not python_version_exists
+  register: pyenv_install
+  changed_when: pyenv_install.rc == 0
+  become: true
+  become_user: "{{ primary_user_account }}"
+
+- name: Check the current global Python version # noqa command-instead-of-shell
+  ansible.builtin.shell: "{{ pyenv_executable }} version-name"
+  register: current_python_version
+  changed_when: false
+  become: true
+  become_user: "{{ primary_user_account }}"
+  ignore_errors: true
+
+- name: "Set global Python version" # noqa command-instead-of-shell
+  ansible.builtin.shell: "{{ pyenv_executable }} global '{{ python_version }}'"
+  when: current_python_version.stdout != python_version
+  register: global_python
+  changed_when: global_python.rc == 0
+  become: true
+  become_user: "{{ primary_user_account }}"

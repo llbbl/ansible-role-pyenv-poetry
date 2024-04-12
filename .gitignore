@@ -1,0 +1,12 @@
+# gitignore
+
+.code
+.vscode
+.idea
+.DS_Store
+*.retry
+*.log
+*.pem
+*.pub
+
+vault_pass*
