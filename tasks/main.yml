@@ -88,6 +88,16 @@
 # https://python-poetry.org/docs/
 #############################
 
+- name: Check if pipx is installed
+  ansible.builtin.command: pipx --version
+  register: pipx_version_check
+  ignore_errors: true
+  changed_when: false
+  become: true
+  become_user: "{{ primary_user_account }}"
+  environment:
+    PATH: "{{ user_home_dir }}/.pyenv/bin:{{ ansible_env.PATH }}"
+
 - name: Install pipx with pip
   ansible.builtin.pip:
     name: pipx
@@ -97,13 +107,32 @@
   become_user: "{{ primary_user_account }}"
   environment:
     PATH: "{{ user_home_dir }}/.pyenv/bin:{{ ansible_env.PATH }}"
-  when: install_poetry
+  when: install_poetry and pipx_version_check.rc != 0
 
-- name: Install Poetry with pipx
+- name: Check if Poetry is installed
+  ansible.builtin.command: poetry --version
+  register: poetry_version_check
+  ignore_errors: true
+  changed_when: false
+  become: true
+  become_user: "{{ primary_user_account }}"
+  environment:
+    PATH: "{{ user_home_dir }}/.pyenv/bin:{{ ansible_env.PATH }}:{{ user_home_dir }}/.local/bin"
+
+- name: Install Poetry with pipx # noqa no-changed-when
   ansible.builtin.shell: |
     pipx install poetry
   become: true
   become_user: "{{ primary_user_account }}"
   environment:
-    PATH: "{{ ansible_env.PATH }}:{{ user_home_dir }}/.local/bin"
-  when: install_poetry
+    PATH: "{{ user_home_dir }}/.pyenv/bin:{{ ansible_env.PATH }}:{{ user_home_dir }}/.local/bin"
+  when: install_poetry and poetry_version_check.rc != 0
+
+- name: Upgrade Poetry with pipx # noqa no-changed-when
+  ansible.builtin.shell: |
+    pipx upgrade poetry
+  become: true
+  become_user: "{{ primary_user_account }}"
+  environment:
+    PATH: "{{ user_home_dir }}/.pyenv/bin:{{ ansible_env.PATH }}:{{ user_home_dir }}/.local/bin"
+  when: install_poetry and poetry_version_check.rc == 0
