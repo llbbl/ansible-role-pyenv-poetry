@@ -7,7 +7,7 @@ This role installs and configures pyenv and Poetry on Ubuntu and Debian systems.
 To install the `pyenv-poetry` role, run the following command:
 
 ```
-ansible-galaxy role install llbbl.pyenv-poetry,0.3 -p roles/ --force
+ansible-galaxy role install llbbl.pyenv-poetry,0.8 -p roles/ --force
 ```
 
 The command `ansible-galaxy role install llbbl.pyenv-poetry,0.1 -p roles/ --force` is used to install an Ansible role from Galaxy, which is a public repository for sharing and distributing Ansible roles.

@@ -32,7 +32,7 @@
 - name: Add pyenv to PATH
   ansible.builtin.lineinfile:
     dest: "{{ user_home_dir }}/.zshrc"
-    line: 'export PATH="$HOME/.pyenv/bin:$PATH"'
+    line: 'export PATH="$HOME/.pyenv/bin:$HOME/.pyenv/shims:$PATH"'
     state: present
 
 - name: Add pyenv init to shell
@@ -96,7 +96,7 @@
   become: true
   become_user: "{{ primary_user_account }}"
   environment:
-    PATH: "{{ user_home_dir }}/.pyenv/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ user_home_dir }}/.pyenv/bin:/root/.pyenv/shims:{{ ansible_env.PATH }}"
 
 - name: Install pipx with pip
   ansible.builtin.pip:
@@ -106,7 +106,7 @@
   become: true
   become_user: "{{ primary_user_account }}"
   environment:
-    PATH: "{{ user_home_dir }}/.pyenv/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ user_home_dir }}/.pyenv/bin:/root/.pyenv/shims:{{ ansible_env.PATH }}"
   when: install_poetry and pipx_version_check.rc != 0
 
 - name: Check if Poetry is installed
@@ -117,7 +117,7 @@
   become: true
   become_user: "{{ primary_user_account }}"
   environment:
-    PATH: "{{ user_home_dir }}/.pyenv/bin:{{ ansible_env.PATH }}:{{ user_home_dir }}/.local/bin"
+    PATH: "{{ user_home_dir }}/.pyenv/bin:/root/.pyenv/shims:{{ ansible_env.PATH }}:{{ user_home_dir }}/.local/bin"
 
 - name: Install Poetry with pipx # noqa no-changed-when
   ansible.builtin.shell: |
@@ -125,7 +125,7 @@
   become: true
   become_user: "{{ primary_user_account }}"
   environment:
-    PATH: "{{ user_home_dir }}/.pyenv/bin:{{ ansible_env.PATH }}:{{ user_home_dir }}/.local/bin"
+    PATH: "{{ user_home_dir }}/.pyenv/bin:/root/.pyenv/shims:{{ ansible_env.PATH }}:{{ user_home_dir }}/.local/bin"
   when: install_poetry and poetry_version_check.rc != 0
 
 - name: Upgrade Poetry with pipx # noqa no-changed-when
@@ -134,5 +134,5 @@
   become: true
   become_user: "{{ primary_user_account }}"
   environment:
-    PATH: "{{ user_home_dir }}/.pyenv/bin:{{ ansible_env.PATH }}:{{ user_home_dir }}/.local/bin"
+    PATH: "{{ user_home_dir }}/.pyenv/bin:/root/.pyenv/shims:{{ ansible_env.PATH }}:{{ user_home_dir }}/.local/bin"
   when: install_poetry and poetry_version_check.rc == 0
