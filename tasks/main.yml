@@ -34,18 +34,30 @@
     dest: "{{ user_home_dir }}/.zshrc"
     line: 'export PATH="$HOME/.pyenv/bin:$HOME/.pyenv/shims:$PATH"'
     state: present
+    create: yes
+    mode: '0644'
+  become: true
+  become_user: "{{ primary_user_account }}"
 
 - name: Add pyenv init to shell
   ansible.builtin.lineinfile:
     dest: "{{ user_home_dir }}/.zshrc"
     line: 'eval "$(pyenv init -)"'
     state: present
+    create: yes
+    mode: '0644'
+  become: true
+  become_user: "{{ primary_user_account }}"
 
 - name: Add pyenv env
   ansible.builtin.lineinfile:
     dest: "{{ user_home_dir }}/.zshrc"
     line: 'export PYENV_ROOT="$HOME/.pyenv"'
     state: present
+    create: yes
+    mode: '0644'
+  become: true
+  become_user: "{{ primary_user_account }}"
 
 - name: Check if Python version exists # noqa command-instead-of-shell
   ansible.builtin.shell: "{{ pyenv_executable }} versions --bare"
