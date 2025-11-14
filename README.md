@@ -146,8 +146,8 @@ poetry run molecule test --scenario-name non-root-user
 
 ### Test Scenarios
 
-- **default**: Tests installation as root user on Ubuntu 22.04, 20.04, Debian 12, and Debian 11
-- **non-root-user**: Tests installation for a non-root user account
+- **default**: Tests installation as root user on Ubuntu 22.04
+- **non-root-user**: Tests installation for a non-root user account on Ubuntu 22.04
 
 ### Continuous Integration
 

@@ -66,11 +66,8 @@ This role includes two test scenarios:
 
 ### 1. Default Scenario
 
-Tests the role with **root user** on multiple OS platforms:
+Tests the role with **root user**:
 - Ubuntu 22.04
-- Ubuntu 20.04
-- Debian 12
-- Debian 11
 
 **Location:** `molecule/default/`
 

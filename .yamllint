@@ -1,6 +1,12 @@
 ---
 extends: default
 
+ignore: |
+  .venv/
+  .ansible/
+  .molecule/
+  .cache/
+
 rules:
   line-length:
     max: 200
