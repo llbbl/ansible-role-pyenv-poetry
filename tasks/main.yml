@@ -2,6 +2,7 @@
 # tasks file for pyenv-poetry
 
 - name: Validate required variables
+  tags: [validation, setup]
   ansible.builtin.assert:
     that:
       - primary_user_account is defined
@@ -18,12 +19,18 @@
     success_msg: "All required variables are properly configured"
 
 - name: Detect user shell
-  ansible.builtin.shell: "getent passwd {{ primary_user_account }} | cut -d: -f7"
+  tags: [setup, shell]
+  ansible.builtin.shell: |
+    set -o pipefail
+    getent passwd {{ primary_user_account }} | cut -d: -f7
+  args:
+    executable: /bin/bash
   register: detected_shell
   changed_when: false
   when: shell_type == 'auto'
 
 - name: Set shell config file based on detected or specified shell
+  tags: [setup, shell]
   ansible.builtin.set_fact:
     shell_config_file: >-
       {%- if shell_type == 'bash' -%}
@@ -43,6 +50,7 @@
       {%- endif -%}
 
 - name: Install required dependencies
+  tags: [dependencies, packages, setup]
   ansible.builtin.apt:
     name:
       - build-essential
@@ -65,12 +73,15 @@
     state: present
 
 - name: Clone pyenv repository
+  tags: [pyenv, setup]
   ansible.builtin.git:
     repo: https://github.com/pyenv/pyenv.git
     dest: "{{ user_home_dir }}/.pyenv"
     version: "{{ pyenv_version }}"
+    update: yes
 
 - name: Add pyenv to PATH
+  tags: [pyenv, setup, shell]
   ansible.builtin.lineinfile:
     dest: "{{ user_home_dir }}/{{ shell_config_file }}"
     line: 'export PATH="$HOME/.pyenv/bin:$HOME/.pyenv/shims:$PATH"'
@@ -81,6 +92,7 @@
   become_user: "{{ primary_user_account }}"
 
 - name: Add pyenv init to shell
+  tags: [pyenv, setup, shell]
   ansible.builtin.lineinfile:
     dest: "{{ user_home_dir }}/{{ shell_config_file }}"
     line: 'eval "$(pyenv init -)"'
@@ -91,6 +103,7 @@
   become_user: "{{ primary_user_account }}"
 
 - name: Add pyenv env
+  tags: [pyenv, setup, shell]
   ansible.builtin.lineinfile:
     dest: "{{ user_home_dir }}/{{ shell_config_file }}"
     line: 'export PYENV_ROOT="$HOME/.pyenv"'
@@ -101,6 +114,7 @@
   become_user: "{{ primary_user_account }}"
 
 - name: Check if Python version exists # noqa command-instead-of-shell
+  tags: [python, pyenv]
   ansible.builtin.shell: "{{ pyenv_executable }} versions --bare"
   register: python_versions
   ignore_errors: true
@@ -109,10 +123,12 @@
   become_user: "{{ primary_user_account }}"
 
 - name: Set python_version_exists fact
+  tags: [python, pyenv]
   ansible.builtin.set_fact:
     python_version_exists: "{{ python_versions.stdout_lines | select('equalto', python_version) | list | length > 0 }}"
 
 - name: "Install Python with pyenv" # noqa command-instead-of-shell
+  tags: [python, pyenv]
   ansible.builtin.shell: "{{ pyenv_executable }} install '{{ python_version }}'"
   when: not python_version_exists
   register: pyenv_install
@@ -121,6 +137,7 @@
   become_user: "{{ primary_user_account }}"
 
 - name: Check the current global Python version # noqa command-instead-of-shell
+  tags: [python, pyenv]
   ansible.builtin.shell: "{{ pyenv_executable }} version-name"
   register: current_python_version
   changed_when: false
@@ -129,6 +146,7 @@
   ignore_errors: true
 
 - name: "Set global Python version" # noqa command-instead-of-shell
+  tags: [python, pyenv]
   ansible.builtin.shell: "{{ pyenv_executable }} global '{{ python_version }}'"
   when: current_python_version.stdout != python_version
   register: global_python
@@ -142,6 +160,7 @@
 #############################
 
 - name: Check if pipx is installed
+  tags: [poetry, packages]
   ansible.builtin.command: pipx --version
   register: pipx_version_check
   ignore_errors: true
@@ -151,6 +170,7 @@
   environment: "{{ pyenv_environment }}"
 
 - name: Install pipx with pip
+  tags: [poetry, packages]
   ansible.builtin.pip:
     name: "pipx{% if pipx_version != 'latest' %}=={{ pipx_version }}{% endif %}"
     state: present
@@ -161,6 +181,7 @@
   when: install_poetry and pipx_version_check.rc != 0
 
 - name: Check if Poetry is installed
+  tags: [poetry, packages]
   ansible.builtin.command: poetry --version
   register: poetry_version_check
   ignore_errors: true
@@ -169,7 +190,14 @@
   become_user: "{{ primary_user_account }}"
   environment: "{{ pyenv_environment_with_local }}"
 
+- name: Extract current Poetry version
+  tags: [poetry, packages]
+  ansible.builtin.set_fact:
+    current_poetry_version: "{{ poetry_version_check.stdout | regex_search('Poetry \\(version ([0-9.]+)\\)', '\\1') | first | default('') }}"
+  when: poetry_version_check.rc == 0
+
 - name: Install Poetry with pipx # noqa no-changed-when
+  tags: [poetry, packages]
   ansible.builtin.shell: |
     {% if poetry_version == 'latest' %}
     pipx install poetry
@@ -181,7 +209,8 @@
   environment: "{{ pyenv_environment_with_local }}"
   when: install_poetry and poetry_version_check.rc != 0
 
-- name: Upgrade Poetry with pipx # noqa no-changed-when
+- name: Upgrade Poetry with pipx
+  tags: [poetry, packages]
   ansible.builtin.shell: |
     {% if poetry_version == 'latest' %}
     pipx upgrade poetry
@@ -191,4 +220,52 @@
   become: true
   become_user: "{{ primary_user_account }}"
   environment: "{{ pyenv_environment_with_local }}"
-  when: install_poetry and poetry_version_check.rc == 0
+  when: >
+    install_poetry and
+    poetry_version_check.rc == 0 and
+    (poetry_version == 'latest' or current_poetry_version != poetry_version)
+  register: poetry_upgrade_result
+  changed_when: "'upgraded' in poetry_upgrade_result.stdout or 'installed' in poetry_upgrade_result.stdout"
+
+#############################
+# Verify installations
+#############################
+
+- name: Verify pyenv installation
+  tags: [verification, pyenv]
+  ansible.builtin.command: "{{ pyenv_executable }} --version"
+  register: pyenv_verify
+  changed_when: false
+  failed_when: pyenv_version.lstrip('v') not in pyenv_verify.stdout
+  become: true
+  become_user: "{{ primary_user_account }}"
+
+- name: Verify Python installation
+  tags: [verification, python]
+  ansible.builtin.command: "{{ pyenv_executable }} version-name"
+  register: python_verify
+  changed_when: false
+  failed_when: python_verify.stdout.strip() != python_version
+  become: true
+  become_user: "{{ primary_user_account }}"
+
+- name: Verify Poetry installation
+  tags: [verification, poetry]
+  ansible.builtin.command: poetry --version
+  register: poetry_verify
+  changed_when: false
+  failed_when: poetry_verify.rc != 0
+  become: true
+  become_user: "{{ primary_user_account }}"
+  environment: "{{ pyenv_environment_with_local }}"
+  when: install_poetry
+
+- name: Display verification summary
+  tags: [verification]
+  ansible.builtin.debug:
+    msg:
+      - "=== Installation Verification Summary ==="
+      - "pyenv version: {{ pyenv_verify.stdout }}"
+      - "Python version: {{ python_verify.stdout }}"
+      - "Poetry version: {{ poetry_verify.stdout if install_poetry else 'Not installed (install_poetry: false)' }}"
+      - "==========================================="

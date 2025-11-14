@@ -51,8 +51,8 @@ This will apply the tasks and configurations defined in the `llbbl.pyenv-poetry`
 
 The following variables are defined in `defaults/main.yml`:
 
-- `pyenv_version` (default: "v2.4.0"): The version of pyenv to install.
-- `python_version` (default: "3.10.14"): The version of Python to install using pyenv.
+- `pyenv_version` (default: "v2.6.11"): The version of pyenv to install.
+- `python_version` (default: "3.13.9"): The version of Python to install using pyenv.
 - `pipx_version` (default: "latest"): The version of pipx to install. Set to a specific version like "1.4.3" to pin.
 - `poetry_version` (default: "latest"): The version of Poetry to install. Set to a specific version like "1.8.2" to pin.
 - `install_poetry` (default: true): Whether to install Poetry.
@@ -81,9 +81,81 @@ Here's an example playbook that uses the `pyenv-poetry` role:
         primary_user_account: root
         user_home_dir: /root
         shell_type: auto  # auto-detect shell, or specify "bash" or "zsh"
-        pyenv_version: "v2.4.0"
-        python_version: "3.10.14"
+        pyenv_version: "v2.6.11"
+        python_version: "3.13.9"
         pipx_version: "latest"  # or pin to "1.4.3"
         poetry_version: "latest"  # or pin to "1.8.2"
         install_poetry: true
 ```
+
+## Using Task Tags
+
+This role supports task tags for selective execution. You can use tags to run only specific parts of the role:
+
+### Available Tags
+
+- `validation` - Variable validation tasks
+- `setup` - Initial setup tasks (shell detection, shell config)
+- `shell` - Shell configuration tasks
+- `dependencies` - System package dependencies
+- `packages` - Package installation tasks (pipx, Poetry)
+- `pyenv` - pyenv installation and configuration
+- `python` - Python installation tasks
+- `poetry` - Poetry installation tasks
+- `verification` - Installation verification tasks
+
+### Examples
+
+Run only Poetry installation:
+```bash
+ansible-playbook playbook.yml --tags "poetry"
+```
+
+Run only pyenv and Python installation (skip Poetry):
+```bash
+ansible-playbook playbook.yml --tags "pyenv,python"
+```
+
+Skip dependency installation:
+```bash
+ansible-playbook playbook.yml --skip-tags "dependencies"
+```
+
+Run only verification tasks:
+```bash
+ansible-playbook playbook.yml --tags "verification"
+```
+
+## Testing
+
+This role includes comprehensive automated tests using Molecule. Tests cover multiple operating systems and user contexts.
+
+### Quick Start
+
+```bash
+# Install test dependencies
+poetry install
+mkdir -p collections
+poetry run ansible-galaxy collection install -r requirements.yml -p collections --force
+
+# Set collections path and run tests
+export ANSIBLE_COLLECTIONS_PATH="$(pwd)/collections"
+export PYTHONPATH="$(pwd)/collections:$PYTHONPATH"
+poetry run molecule test --all
+
+# Run specific scenario
+poetry run molecule test --scenario-name default
+poetry run molecule test --scenario-name non-root-user
+```
+
+### Test Scenarios
+
+- **default**: Tests installation as root user on Ubuntu 22.04
+- **non-root-user**: Tests installation for a non-root user account on Ubuntu 22.04
+
+### Continuous Integration
+
+This role uses GitHub Actions for automated testing. All pull requests are automatically tested against the full test matrix.
+
+For detailed testing instructions, see [TESTING.md](docs/TESTING.md).
+

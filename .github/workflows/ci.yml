@@ -1,0 +1,97 @@
+---
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+  pull_request:
+    branches:
+      - main
+      - master
+      - develop
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the codebase
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Run yamllint
+        run: poetry run yamllint .
+
+      - name: Run ansible-lint
+        run: poetry run ansible-lint
+
+  molecule:
+    name: Molecule
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario:
+          - default
+          - non-root-user
+
+    steps:
+      - name: Check out the codebase
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Install Ansible collections
+        run: |
+          mkdir -p collections
+          poetry run ansible-galaxy collection install -r requirements.yml -p collections --force
+
+      - name: Test Docker access
+        run: docker ps
+
+      - name: Run Molecule tests
+        run: |
+          if [ "${{ matrix.scenario }}" = "default" ]; then
+            poetry run molecule test
+          else
+            poetry run molecule test --scenario-name ${{ matrix.scenario }}
+          fi
+        env:
+          PY_COLORS: '1'
+          ANSIBLE_FORCE_COLOR: '1'
+          ANSIBLE_VERBOSITY: '2'
+          DOCKER_HOST: unix:///var/run/docker.sock
+          ANSIBLE_COLLECTIONS_PATH: ${{ github.workspace }}/collections
+          PYTHONPATH: ${{ github.workspace }}/collections:$PYTHONPATH
