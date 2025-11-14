@@ -15,6 +15,9 @@ vault_pass*
 .molecule/
 .cache/
 
+# Ansible
+.ansible/
+
 # Python
 __pycache__/
 *.py[cod]
