@@ -74,7 +74,9 @@ jobs:
         run: poetry install --no-interaction
 
       - name: Install Ansible collections
-        run: poetry run ansible-galaxy collection install -r requirements.yml
+        run: |
+          mkdir -p collections
+          poetry run ansible-galaxy collection install -r requirements.yml -p collections
 
       - name: Test Docker access
         run: docker ps
@@ -85,3 +87,5 @@ jobs:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
           DOCKER_HOST: unix:///var/run/docker.sock
+          ANSIBLE_COLLECTIONS_PATH: ${{ github.workspace }}/collections
+          PYTHONPATH: ${{ github.workspace }}/collections:$PYTHONPATH

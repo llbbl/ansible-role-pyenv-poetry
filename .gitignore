@@ -17,6 +17,7 @@ vault_pass*
 
 # Ansible
 .ansible/
+collections/
 
 # Python
 __pycache__/

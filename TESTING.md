@@ -62,13 +62,18 @@ The `poetry.lock` file ensures all developers and CI use the exact same dependen
 
 ### Install Ansible Collections
 
-Install the required Ansible collections:
+Install the required Ansible collections to the project's `collections/` directory:
 
 ```bash
-poetry run ansible-galaxy collection install -r requirements.yml
+mkdir -p collections
+poetry run ansible-galaxy collection install -r requirements.yml -p collections
 ```
 
-This installs the `community.docker` collection required by molecule-docker.
+This installs the `community.docker` collection required by molecule-docker to the standard project-local collections directory.
+
+**Important**: You must set both `ANSIBLE_COLLECTIONS_PATH` and `PYTHONPATH` before running tests:
+- `ANSIBLE_COLLECTIONS_PATH` tells Ansible where to find collections
+- `PYTHONPATH` allows Python to import collection modules
 
 ## Test Scenarios
 
@@ -331,7 +336,12 @@ poetry run molecule test --scenario-name zsh-shell
 ```bash
 # Install dependencies
 poetry install
-poetry run ansible-galaxy collection install -r requirements.yml
+mkdir -p collections
+poetry run ansible-galaxy collection install -r requirements.yml -p collections
+
+# Set collections path (or export in your shell)
+export ANSIBLE_COLLECTIONS_PATH="$(pwd)/collections"
+export PYTHONPATH="$(pwd)/collections:$PYTHONPATH"
 
 # Run all tests
 poetry run molecule test --all

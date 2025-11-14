@@ -6,6 +6,7 @@ ignore: |
   .ansible/
   .molecule/
   .cache/
+  collections/
 
 rules:
   line-length:

@@ -135,9 +135,12 @@ This role includes comprehensive automated tests using Molecule. Tests cover mul
 ```bash
 # Install test dependencies
 poetry install
-poetry run ansible-galaxy collection install -r requirements.yml
+mkdir -p collections
+poetry run ansible-galaxy collection install -r requirements.yml -p collections
 
-# Run all tests
+# Set collections path and run tests
+export ANSIBLE_COLLECTIONS_PATH="$(pwd)/collections"
+export PYTHONPATH="$(pwd)/collections:$PYTHONPATH"
 poetry run molecule test --all
 
 # Run specific scenario
