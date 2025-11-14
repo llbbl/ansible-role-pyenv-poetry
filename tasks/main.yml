@@ -1,6 +1,47 @@
 ---
 # tasks file for pyenv-poetry
 
+- name: Validate required variables
+  ansible.builtin.assert:
+    that:
+      - primary_user_account is defined
+      - primary_user_account | length > 0
+      - user_home_dir is defined
+      - user_home_dir | length > 0
+    fail_msg: |
+      Required variables not properly set. Please define:
+      - primary_user_account: The username of the primary user account
+      - user_home_dir: The home directory of the user
+      Current values:
+      - primary_user_account: {{ primary_user_account | default('NOT DEFINED') }}
+      - user_home_dir: {{ user_home_dir | default('NOT DEFINED') }}
+    success_msg: "All required variables are properly configured"
+
+- name: Detect user shell
+  ansible.builtin.shell: "getent passwd {{ primary_user_account }} | cut -d: -f7"
+  register: detected_shell
+  changed_when: false
+  when: shell_type == 'auto'
+
+- name: Set shell config file based on detected or specified shell
+  ansible.builtin.set_fact:
+    shell_config_file: >-
+      {%- if shell_type == 'bash' -%}
+        .bashrc
+      {%- elif shell_type == 'zsh' -%}
+        .zshrc
+      {%- elif shell_type == 'auto' and detected_shell.stdout is defined -%}
+        {%- if 'zsh' in detected_shell.stdout -%}
+          .zshrc
+        {%- elif 'bash' in detected_shell.stdout -%}
+          .bashrc
+        {%- else -%}
+          .profile
+        {%- endif -%}
+      {%- else -%}
+        .profile
+      {%- endif -%}
+
 - name: Install required dependencies
   ansible.builtin.apt:
     name:
@@ -31,7 +72,7 @@
 
 - name: Add pyenv to PATH
   ansible.builtin.lineinfile:
-    dest: "{{ user_home_dir }}/.zshrc"
+    dest: "{{ user_home_dir }}/{{ shell_config_file }}"
     line: 'export PATH="$HOME/.pyenv/bin:$HOME/.pyenv/shims:$PATH"'
     state: present
     create: yes
@@ -41,7 +82,7 @@
 
 - name: Add pyenv init to shell
   ansible.builtin.lineinfile:
-    dest: "{{ user_home_dir }}/.zshrc"
+    dest: "{{ user_home_dir }}/{{ shell_config_file }}"
     line: 'eval "$(pyenv init -)"'
     state: present
     create: yes
@@ -51,7 +92,7 @@
 
 - name: Add pyenv env
   ansible.builtin.lineinfile:
-    dest: "{{ user_home_dir }}/.zshrc"
+    dest: "{{ user_home_dir }}/{{ shell_config_file }}"
     line: 'export PYENV_ROOT="$HOME/.pyenv"'
     state: present
     create: yes
@@ -107,18 +148,16 @@
   changed_when: false
   become: true
   become_user: "{{ primary_user_account }}"
-  environment:
-    PATH: "{{ user_home_dir }}/.pyenv/bin:{{ user_home_dir }}/.pyenv/shims:{{ ansible_env.PATH }}"
+  environment: "{{ pyenv_environment }}"
 
 - name: Install pipx with pip
   ansible.builtin.pip:
-    name: pipx
+    name: "pipx{% if pipx_version != 'latest' %}=={{ pipx_version }}{% endif %}"
     state: present
     executable: "{{ user_home_dir }}/.pyenv/shims/pip"
   become: true
   become_user: "{{ primary_user_account }}"
-  environment:
-    PATH: "{{ user_home_dir }}/.pyenv/bin:{{ user_home_dir }}/.pyenv/shims:{{ ansible_env.PATH }}"
+  environment: "{{ pyenv_environment }}"
   when: install_poetry and pipx_version_check.rc != 0
 
 - name: Check if Poetry is installed
@@ -128,23 +167,28 @@
   changed_when: false
   become: true
   become_user: "{{ primary_user_account }}"
-  environment:
-    PATH: "{{ user_home_dir }}/.pyenv/bin:{{ user_home_dir }}/.pyenv/shims:{{ ansible_env.PATH }}:{{ user_home_dir }}/.local/bin"
+  environment: "{{ pyenv_environment_with_local }}"
 
 - name: Install Poetry with pipx # noqa no-changed-when
   ansible.builtin.shell: |
+    {% if poetry_version == 'latest' %}
     pipx install poetry
+    {% else %}
+    pipx install poetry=={{ poetry_version }}
+    {% endif %}
   become: true
   become_user: "{{ primary_user_account }}"
-  environment:
-    PATH: "{{ user_home_dir }}/.pyenv/bin:{{ user_home_dir }}/.pyenv/shims:{{ ansible_env.PATH }}:{{ user_home_dir }}/.local/bin"
+  environment: "{{ pyenv_environment_with_local }}"
   when: install_poetry and poetry_version_check.rc != 0
 
 - name: Upgrade Poetry with pipx # noqa no-changed-when
   ansible.builtin.shell: |
+    {% if poetry_version == 'latest' %}
     pipx upgrade poetry
+    {% else %}
+    pipx upgrade poetry --install poetry=={{ poetry_version }}
+    {% endif %}
   become: true
   become_user: "{{ primary_user_account }}"
-  environment:
-    PATH: "{{ user_home_dir }}/.pyenv/bin:{{ user_home_dir }}/.pyenv/shims:{{ ansible_env.PATH }}:{{ user_home_dir }}/.local/bin"
+  environment: "{{ pyenv_environment_with_local }}"
   when: install_poetry and poetry_version_check.rc == 0

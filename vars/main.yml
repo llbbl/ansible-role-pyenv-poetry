@@ -2,3 +2,10 @@
 # vars file for pyenv-poetry
 pyenv_root: "{{ user_home_dir }}/.pyenv"
 pyenv_executable: "{{ pyenv_root }}/bin/pyenv"
+
+# Environment variables for pyenv and related tools
+pyenv_environment:
+  PATH: "{{ user_home_dir }}/.pyenv/bin:{{ user_home_dir }}/.pyenv/shims:{{ ansible_env.PATH }}"
+
+pyenv_environment_with_local:
+  PATH: "{{ user_home_dir }}/.pyenv/bin:{{ user_home_dir }}/.pyenv/shims:{{ ansible_env.PATH }}:{{ user_home_dir }}/.local/bin"

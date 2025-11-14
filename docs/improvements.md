@@ -60,8 +60,8 @@ Tasks modify `.zshrc` without checking if it exists. While lineinfile will creat
 ## High Priority Improvements
 
 ### 🟡 3. Shell-agnostic support
-**Status:** 📋 Proposed
-**Location:** `tasks/main.yml:32-48`
+**Status:** ✅ Completed (2025-11-14)
+**Location:** `defaults/main.yml:12-15`, `tasks/main.yml:20-101`
 **Impact:** Currently only supports zsh users
 
 **Problem:**
@@ -82,8 +82,8 @@ shell_config_file: "{{ '.zshrc' if shell_type == 'zsh' else '.bashrc' }}"
 ---
 
 ### 🟡 4. Missing required variable documentation
-**Status:** 📋 Proposed
-**Location:** `defaults/main.yml`
+**Status:** ✅ Completed (2025-11-14)
+**Location:** `defaults/main.yml`, `tasks/main.yml:4-18`
 **Impact:** Users may not know required variables, causing failures
 
 **Problem:**
@@ -110,8 +110,8 @@ shell_config_file: "{{ '.zshrc' if shell_type == 'zsh' else '.bashrc' }}"
 ---
 
 ### 🟡 5. Duplicate environment blocks
-**Status:** 📋 Proposed
-**Location:** Throughout `tasks/main.yml`
+**Status:** ✅ Completed (2025-11-14)
+**Location:** `vars/main.yml`, throughout `tasks/main.yml`
 **Impact:** Harder to maintain, violates DRY principle
 
 **Problem:**
@@ -136,8 +136,8 @@ pyenv_path_environment:
 ---
 
 ### 🟡 6. No version pinning for Poetry/pipx
-**Status:** 📋 Proposed
-**Location:** `defaults/main.yml`, `tasks/main.yml:102-138`
+**Status:** ✅ Completed (2025-11-14)
+**Location:** `defaults/main.yml:18-24`, `tasks/main.yml:128-169`
 **Impact:** Unpredictable versions, harder to reproduce environments
 
 **Problem:**
