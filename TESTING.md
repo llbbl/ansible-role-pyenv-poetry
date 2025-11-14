@@ -60,6 +60,16 @@ This will install all dev dependencies including:
 
 The `poetry.lock` file ensures all developers and CI use the exact same dependency versions.
 
+### Install Ansible Collections
+
+Install the required Ansible collections:
+
+```bash
+poetry run ansible-galaxy collection install -r requirements.yml
+```
+
+This installs the `community.docker` collection required by molecule-docker.
+
 ## Test Scenarios
 
 This role includes two test scenarios:
@@ -321,6 +331,7 @@ poetry run molecule test --scenario-name zsh-shell
 ```bash
 # Install dependencies
 poetry install
+poetry run ansible-galaxy collection install -r requirements.yml
 
 # Run all tests
 poetry run molecule test --all

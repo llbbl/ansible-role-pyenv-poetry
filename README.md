@@ -135,6 +135,7 @@ This role includes comprehensive automated tests using Molecule. Tests cover mul
 ```bash
 # Install test dependencies
 poetry install
+poetry run ansible-galaxy collection install -r requirements.yml
 
 # Run all tests
 poetry run molecule test --all
