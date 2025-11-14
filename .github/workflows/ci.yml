@@ -82,11 +82,10 @@ jobs:
         run: docker ps
 
       - name: Run Molecule tests
-        run: poetry run molecule --debug test --scenario-name ${{ matrix.scenario }}
+        run: poetry run molecule --debug test --scenario-name ${{ matrix.scenario }} -- -vvv
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
-          ANSIBLE_VERBOSITY: '2'
           DOCKER_HOST: unix:///var/run/docker.sock
           ANSIBLE_COLLECTIONS_PATH: ${{ github.workspace }}/collections
           PYTHONPATH: ${{ github.workspace }}/collections:$PYTHONPATH
