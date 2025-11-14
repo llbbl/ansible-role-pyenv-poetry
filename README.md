@@ -134,14 +134,14 @@ This role includes comprehensive automated tests using Molecule. Tests cover mul
 
 ```bash
 # Install test dependencies
-pip install -r requirements-dev.txt
+poetry install
 
 # Run all tests
-molecule test --all
+poetry run molecule test --all
 
 # Run specific scenario
-molecule test --scenario-name default
-molecule test --scenario-name non-root-user
+poetry run molecule test --scenario-name default
+poetry run molecule test --scenario-name non-root-user
 ```
 
 ### Test Scenarios

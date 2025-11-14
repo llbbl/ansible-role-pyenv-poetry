@@ -11,7 +11,8 @@ This role uses [Molecule](https://molecule.readthedocs.io/) for automated testin
 ### System Requirements
 
 - Docker (for running test containers)
-- Python 3.8 or later
+- Python 3.12 or later
+- Poetry (Python dependency manager)
 - Git
 
 ### Install Docker
@@ -29,21 +30,35 @@ sudo usermod -aG docker $USER
 brew install docker
 ```
 
-### Install Python Dependencies
+### Install Poetry
 
-Install the required Python packages for testing:
-
+**Ubuntu/Debian:**
 ```bash
-pip install -r requirements-dev.txt
+curl -sSL https://install.python-poetry.org | python3 -
 ```
 
-This will install:
+**macOS:**
+```bash
+brew install poetry
+```
+
+### Install Python Dependencies
+
+Install the required Python packages for testing using Poetry:
+
+```bash
+poetry install
+```
+
+This will install all dev dependencies including:
 - `molecule` - The testing framework
 - `molecule-docker` - Docker driver for Molecule
-- `ansible` - Ansible itself
+- `ansible-core` - Ansible itself
 - `ansible-lint` - Linting tool for Ansible
 - `yamllint` - YAML linting tool
 - `pytest` and `pytest-testinfra` - Testing utilities
+
+The `poetry.lock` file ensures all developers and CI use the exact same dependency versions.
 
 ## Test Scenarios
 
@@ -85,7 +100,7 @@ Tests the role with a **non-root user** (`testuser`):
 To run all test scenarios:
 
 ```bash
-molecule test --all
+poetry run molecule test --all
 ```
 
 ### Run Specific Scenario
@@ -94,10 +109,10 @@ To run a specific scenario:
 
 ```bash
 # Test with root user on all platforms
-molecule test --scenario-name default
+poetry run molecule test --scenario-name default
 
 # Test with non-root user
-molecule test --scenario-name non-root-user
+poetry run molecule test --scenario-name non-root-user
 ```
 
 ### Test Workflow Steps
@@ -122,19 +137,19 @@ You can run individual steps of the test workflow:
 
 ```bash
 # Create test containers
-molecule create
+poetry run molecule create
 
 # Run the role (converge)
-molecule converge
+poetry run molecule converge
 
 # Run verification tests only
-molecule verify
+poetry run molecule verify
 
 # Test idempotence (should make no changes on second run)
-molecule idempotence
+poetry run molecule idempotence
 
 # Clean up
-molecule destroy
+poetry run molecule destroy
 ```
 
 ### Interactive Testing
@@ -143,17 +158,17 @@ For interactive testing and debugging:
 
 ```bash
 # Create and converge (but don't destroy)
-molecule converge --scenario-name default
+poetry run molecule converge --scenario-name default
 
 # Log into the test container
-molecule login --scenario-name default --host ubuntu-22.04
+poetry run molecule login --scenario-name default --host ubuntu-22.04
 
 # Inside the container, you can manually test commands
 # Exit when done
 exit
 
 # Clean up when finished
-molecule destroy
+poetry run molecule destroy
 ```
 
 ## Verification Tests
@@ -232,10 +247,10 @@ If containers fail to create:
 
 ```bash
 # Clean up any existing containers
-molecule destroy --all
+poetry run molecule destroy --all
 
 # Try again
-molecule test
+poetry run molecule test
 ```
 
 ### Verify Failures
@@ -244,10 +259,10 @@ If verification tests fail:
 
 ```bash
 # Run converge to set up the environment
-molecule converge
+poetry run molecule converge
 
 # Log into the container to investigate
-molecule login
+poetry run molecule login
 
 # Inside the container, manually check the state
 ls -la /root/.pyenv
@@ -257,7 +272,7 @@ poetry --version
 
 # Exit and destroy when done
 exit
-molecule destroy
+poetry run molecule destroy
 ```
 
 ### Python Build Failures
@@ -274,8 +289,8 @@ If the idempotence test fails (role makes changes on second run):
 
 ```bash
 # Run converge twice manually to see what changes
-molecule converge
-molecule converge
+poetry run molecule converge
+poetry run molecule converge
 
 # Check the diff to see what's changing
 ```
@@ -294,7 +309,7 @@ Example:
 ```bash
 mkdir -p molecule/zsh-shell
 # Create your test files
-molecule test --scenario-name zsh-shell
+poetry run molecule test --scenario-name zsh-shell
 ```
 
 ## Additional Resources
@@ -308,23 +323,23 @@ molecule test --scenario-name zsh-shell
 
 ```bash
 # Install dependencies
-pip install -r requirements-dev.txt
+poetry install
 
 # Run all tests
-molecule test --all
+poetry run molecule test --all
 
 # Run specific scenario
-molecule test --scenario-name default
+poetry run molecule test --scenario-name default
 
 # Interactive testing
-molecule converge
-molecule login
-molecule destroy
+poetry run molecule converge
+poetry run molecule login
+poetry run molecule destroy
 
 # Linting
-yamllint .
-ansible-lint
+poetry run yamllint .
+poetry run ansible-lint
 
 # Clean up everything
-molecule destroy --all
+poetry run molecule destroy --all
 ```
