@@ -17,8 +17,8 @@ shell_type: auto
 # Version of pyenv to install (default: v2.4.0)
 pyenv_version: v2.4.0
 
-# Python version to install via pyenv (default: 3.10.14)
-python_version: 3.10.14
+# Python version to install via pyenv (default: 3.13.9)
+python_version: 3.13.9
 
 # pipx version to install (default: latest)
 # To pin to a specific version, set to version number like "1.4.3"
