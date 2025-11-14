@@ -82,7 +82,7 @@ jobs:
         run: docker ps
 
       - name: Run Molecule tests
-        run: poetry run molecule test --scenario-name ${{ matrix.scenario }} -- -vvv
+        run: poetry run molecule test -s ${{ matrix.scenario }} -- -vvv
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
