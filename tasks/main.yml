@@ -34,18 +34,30 @@
     dest: "{{ user_home_dir }}/.zshrc"
     line: 'export PATH="$HOME/.pyenv/bin:$HOME/.pyenv/shims:$PATH"'
     state: present
+    create: yes
+    mode: '0644'
+  become: true
+  become_user: "{{ primary_user_account }}"
 
 - name: Add pyenv init to shell
   ansible.builtin.lineinfile:
     dest: "{{ user_home_dir }}/.zshrc"
     line: 'eval "$(pyenv init -)"'
     state: present
+    create: yes
+    mode: '0644'
+  become: true
+  become_user: "{{ primary_user_account }}"
 
 - name: Add pyenv env
   ansible.builtin.lineinfile:
     dest: "{{ user_home_dir }}/.zshrc"
     line: 'export PYENV_ROOT="$HOME/.pyenv"'
     state: present
+    create: yes
+    mode: '0644'
+  become: true
+  become_user: "{{ primary_user_account }}"
 
 - name: Check if Python version exists # noqa command-instead-of-shell
   ansible.builtin.shell: "{{ pyenv_executable }} versions --bare"
@@ -96,7 +108,7 @@
   become: true
   become_user: "{{ primary_user_account }}"
   environment:
-    PATH: "{{ user_home_dir }}/.pyenv/bin:/root/.pyenv/shims:{{ ansible_env.PATH }}"
+    PATH: "{{ user_home_dir }}/.pyenv/bin:{{ user_home_dir }}/.pyenv/shims:{{ ansible_env.PATH }}"
 
 - name: Install pipx with pip
   ansible.builtin.pip:
@@ -106,7 +118,7 @@
   become: true
   become_user: "{{ primary_user_account }}"
   environment:
-    PATH: "{{ user_home_dir }}/.pyenv/bin:/root/.pyenv/shims:{{ ansible_env.PATH }}"
+    PATH: "{{ user_home_dir }}/.pyenv/bin:{{ user_home_dir }}/.pyenv/shims:{{ ansible_env.PATH }}"
   when: install_poetry and pipx_version_check.rc != 0
 
 - name: Check if Poetry is installed
@@ -117,7 +129,7 @@
   become: true
   become_user: "{{ primary_user_account }}"
   environment:
-    PATH: "{{ user_home_dir }}/.pyenv/bin:/root/.pyenv/shims:{{ ansible_env.PATH }}:{{ user_home_dir }}/.local/bin"
+    PATH: "{{ user_home_dir }}/.pyenv/bin:{{ user_home_dir }}/.pyenv/shims:{{ ansible_env.PATH }}:{{ user_home_dir }}/.local/bin"
 
 - name: Install Poetry with pipx # noqa no-changed-when
   ansible.builtin.shell: |
@@ -125,7 +137,7 @@
   become: true
   become_user: "{{ primary_user_account }}"
   environment:
-    PATH: "{{ user_home_dir }}/.pyenv/bin:/root/.pyenv/shims:{{ ansible_env.PATH }}:{{ user_home_dir }}/.local/bin"
+    PATH: "{{ user_home_dir }}/.pyenv/bin:{{ user_home_dir }}/.pyenv/shims:{{ ansible_env.PATH }}:{{ user_home_dir }}/.local/bin"
   when: install_poetry and poetry_version_check.rc != 0
 
 - name: Upgrade Poetry with pipx # noqa no-changed-when
@@ -134,5 +146,5 @@
   become: true
   become_user: "{{ primary_user_account }}"
   environment:
-    PATH: "{{ user_home_dir }}/.pyenv/bin:/root/.pyenv/shims:{{ ansible_env.PATH }}:{{ user_home_dir }}/.local/bin"
+    PATH: "{{ user_home_dir }}/.pyenv/bin:{{ user_home_dir }}/.pyenv/shims:{{ ansible_env.PATH }}:{{ user_home_dir }}/.local/bin"
   when: install_poetry and poetry_version_check.rc == 0
