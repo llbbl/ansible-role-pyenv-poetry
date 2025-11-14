@@ -52,7 +52,7 @@ poetry install
 
 This will install all dev dependencies including:
 - `molecule` - The testing framework
-- `molecule-docker` - Docker driver for Molecule
+- `molecule-plugins` - Molecule drivers including Docker
 - `ansible-core` - Ansible itself
 - `ansible-lint` - Linting tool for Ansible
 - `yamllint` - YAML linting tool
@@ -70,7 +70,7 @@ poetry run ansible-galaxy collection install -r requirements.yml -p collections
 ```
 
 This installs the required Ansible collections to the standard project-local collections directory:
-- `community.docker` - Docker operations for molecule-docker
+- `community.docker` - Docker operations for molecule-plugins
 - `ansible.posix` - POSIX utilities (synchronize, etc.)
 
 **Important**: You must set both `ANSIBLE_COLLECTIONS_PATH` and `PYTHONPATH` before running tests:

@@ -835,27 +835,30 @@ rich = ">=9.5.1"
 wcmatch = ">=8.1.2"
 
 [[package]]
-name = "molecule-docker"
-version = "2.1.0"
-description = "Molecule aids in the development and testing of Ansible roles"
+name = "molecule-plugins"
+version = "25.8.12"
+description = "Molecule Plugins"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.10"
 groups = ["dev"]
 files = [
-    {file = "molecule-docker-2.1.0.tar.gz", hash = "sha256:195b97673cbc2335cfa6810816de5cbf807507bf350a9d16ca98b224b1647145"},
-    {file = "molecule_docker-2.1.0-py3-none-any.whl", hash = "sha256:d439b075789be700b6594ed73f3254e2a25ed61dcf312d80ab6e718d13bf150e"},
+    {file = "molecule_plugins-25.8.12-py3-none-any.whl", hash = "sha256:c5b8ceb209a5ff87326631d60408f8d08b9431b2e339dad4c620130b50279ce0"},
+    {file = "molecule_plugins-25.8.12.tar.gz", hash = "sha256:75f32763e90275bfc24bcc0d27b9bb22ac973658bf902b2e3e8af8e2a1c32083"},
 ]
 
 [package.dependencies]
-docker = ">=4.3.1"
-molecule = ">=4.0.0"
-requests = "*"
-selinux = {version = "*", markers = "sys_platform == \"linux\" or sys_platform == \"linux2\""}
+docker = {version = ">=4.3.1", optional = true, markers = "extra == \"docker\""}
+molecule = ">=25.1.0"
+requests = {version = "*", optional = true, markers = "extra == \"docker\""}
+selinux = {version = "*", optional = true, markers = "(sys_platform == \"linux2\" or sys_platform == \"linux\") and extra == \"docker\""}
 
 [package.extras]
-docs = ["Sphinx", "simplejson", "sphinx-ansible-theme (>=0.2.2)"]
-lint = ["pre-commit (>=1.21.0)"]
-test = ["molecule[test]"]
+docker = ["docker (>=4.3.1)", "requests", "selinux ; sys_platform == \"linux\"", "selinux ; sys_platform == \"linux2\" or sys_platform == \"linux\""]
+gce = ["google-auth (>=2.28.2)", "requests (>=2.31.0)"]
+openstack = ["openstacksdk (>=1.1.0)"]
+selinux = ["selinux ; sys_platform == \"linux\"", "selinux ; sys_platform == \"linux2\""]
+test = ["molecule[test] (>=25.1.0)", "pytest-helpers-namespace (>=2019.1.8)"]
+vagrant = ["python-vagrant"]
 
 [[package]]
 name = "mypy-extensions"
@@ -1423,7 +1426,7 @@ description = "shim selinux module"
 optional = false
 python-versions = ">=3.9"
 groups = ["dev"]
-markers = "sys_platform == \"linux\" or sys_platform == \"linux2\""
+markers = "sys_platform == \"linux2\" or sys_platform == \"linux\""
 files = [
     {file = "selinux-0.3.0-py2.py3-none-any.whl", hash = "sha256:ecf7add45c939e9dda682c390a2cd0a845c94a4793a2cce9e8870d4ee9501f99"},
     {file = "selinux-0.3.0.tar.gz", hash = "sha256:2a88b337ac46ad0f06f557b2806c3df62421972f766673dd8bf26732fb75a9ea"},
@@ -1536,4 +1539,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "a3eeabb69957037b0a4ea3414f0cc29641d61ed29413a718e3aaeaedc96dcf66"
+content-hash = "3f6b59570285c1b19935d67007a599910a2fa0554a2655f240289c549db9f43b"
