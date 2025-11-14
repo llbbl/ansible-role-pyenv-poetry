@@ -31,8 +31,6 @@ verifier:
 scenario:
   name: non-root-user
   test_sequence:
-    - dependency
-    - cleanup
     - destroy
     - syntax
     - create
@@ -40,5 +38,4 @@ scenario:
     - converge
     - idempotence
     - verify
-    - cleanup
     - destroy
