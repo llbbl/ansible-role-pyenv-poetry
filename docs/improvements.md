@@ -340,8 +340,8 @@ Add handler to notify user to reload shell.
 ---
 
 ### 🔵 13. Add molecule tests
-**Status:** 📋 Proposed
-**Location:** New `molecule/` directory
+**Status:** ✅ Completed (2025-11-14)
+**Location:** `molecule/` directory, `.github/workflows/ci.yml`
 **Impact:** Automated testing and CI/CD integration
 
 **Problem:**

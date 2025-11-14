@@ -126,3 +126,32 @@ Run only verification tasks:
 ansible-playbook playbook.yml --tags "verification"
 ```
 
+## Testing
+
+This role includes comprehensive automated tests using Molecule. Tests cover multiple operating systems and user contexts.
+
+### Quick Start
+
+```bash
+# Install test dependencies
+pip install -r requirements-dev.txt
+
+# Run all tests
+molecule test --all
+
+# Run specific scenario
+molecule test --scenario-name default
+molecule test --scenario-name non-root-user
+```
+
+### Test Scenarios
+
+- **default**: Tests installation as root user on Ubuntu 22.04, 20.04, Debian 12, and Debian 11
+- **non-root-user**: Tests installation for a non-root user account
+
+### Continuous Integration
+
+This role uses GitHub Actions for automated testing. All pull requests are automatically tested against the full test matrix.
+
+For detailed testing instructions, see [TESTING.md](TESTING.md).
+

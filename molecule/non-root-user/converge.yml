@@ -1,0 +1,16 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+
+  roles:
+    - role: ansible-role-pyenv-poetry
+      vars:
+        primary_user_account: testuser
+        user_home_dir: /home/testuser
+        shell_type: bash
+        pyenv_version: v2.4.0
+        python_version: 3.13.9
+        pipx_version: latest
+        poetry_version: latest
+        install_poetry: true

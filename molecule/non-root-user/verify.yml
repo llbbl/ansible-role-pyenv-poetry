@@ -1,0 +1,133 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  gather_facts: true
+
+  vars:
+    test_user: testuser
+    user_home: /home/testuser
+    pyenv_root: /home/testuser/.pyenv
+    pyenv_executable: /home/testuser/.pyenv/bin/pyenv
+
+  tasks:
+    - name: Verify pyenv directory exists for test user
+      ansible.builtin.stat:
+        path: "{{ pyenv_root }}"
+      register: pyenv_dir
+      failed_when: not pyenv_dir.stat.exists or not pyenv_dir.stat.isdir
+
+    - name: Verify pyenv directory is owned by test user
+      ansible.builtin.stat:
+        path: "{{ pyenv_root }}"
+      register: pyenv_ownership
+      failed_when: pyenv_ownership.stat.pw_name != test_user
+
+    - name: Verify pyenv executable exists
+      ansible.builtin.stat:
+        path: "{{ pyenv_executable }}"
+      register: pyenv_exec
+      failed_when: not pyenv_exec.stat.exists or not pyenv_exec.stat.executable
+
+    - name: Verify pyenv version
+      ansible.builtin.command: "{{ pyenv_executable }} --version"
+      register: pyenv_version_output
+      changed_when: false
+      failed_when: "'pyenv' not in pyenv_version_output.stdout"
+      become_user: "{{ test_user }}"
+
+    - name: Verify Python is installed
+      ansible.builtin.shell: "{{ pyenv_executable }} versions --bare"
+      register: python_versions
+      changed_when: false
+      failed_when: "'3.13.9' not in python_versions.stdout"
+      become_user: "{{ test_user }}"
+
+    - name: Verify Python global version is set
+      ansible.builtin.shell: "{{ pyenv_executable }} version-name"
+      register: global_python
+      changed_when: false
+      failed_when: global_python.stdout.strip() != '3.13.9'
+      become_user: "{{ test_user }}"
+
+    - name: Verify shell configuration file exists
+      ansible.builtin.stat:
+        path: "{{ user_home }}/.bashrc"
+      register: shell_config
+      failed_when: not shell_config.stat.exists
+
+    - name: Verify shell config is owned by test user
+      ansible.builtin.stat:
+        path: "{{ user_home }}/.bashrc"
+      register: bashrc_ownership
+      failed_when: bashrc_ownership.stat.pw_name != test_user
+
+    - name: Verify pyenv PATH in shell config
+      ansible.builtin.lineinfile:
+        path: "{{ user_home }}/.bashrc"
+        line: 'export PATH="$HOME/.pyenv/bin:$HOME/.pyenv/shims:$PATH"'
+        state: present
+      check_mode: yes
+      register: path_check
+      failed_when: path_check.changed
+
+    - name: Verify pyenv init in shell config
+      ansible.builtin.lineinfile:
+        path: "{{ user_home }}/.bashrc"
+        line: 'eval "$(pyenv init -)"'
+        state: present
+      check_mode: yes
+      register: init_check
+      failed_when: init_check.changed
+
+    - name: Verify PYENV_ROOT in shell config
+      ansible.builtin.lineinfile:
+        path: "{{ user_home }}/.bashrc"
+        line: 'export PYENV_ROOT="$HOME/.pyenv"'
+        state: present
+      check_mode: yes
+      register: root_check
+      failed_when: root_check.changed
+
+    - name: Verify pipx is installed for test user
+      ansible.builtin.command: "{{ user_home }}/.local/bin/pipx --version"
+      register: pipx_check
+      changed_when: false
+      failed_when: pipx_check.rc != 0
+      become_user: "{{ test_user }}"
+      environment:
+        PATH: "{{ user_home }}/.pyenv/bin:{{ user_home }}/.pyenv/shims:{{ ansible_env.PATH }}:{{ user_home }}/.local/bin"
+
+    - name: Verify Poetry is installed for test user
+      ansible.builtin.command: poetry --version
+      register: poetry_check
+      changed_when: false
+      failed_when: poetry_check.rc != 0 or 'Poetry' not in poetry_check.stdout
+      become_user: "{{ test_user }}"
+      environment:
+        PATH: "{{ user_home }}/.pyenv/bin:{{ user_home }}/.pyenv/shims:{{ ansible_env.PATH }}:{{ user_home }}/.local/bin"
+
+    - name: Verify Python can be executed by test user
+      ansible.builtin.shell: |
+        source {{ user_home }}/.bashrc
+        python --version
+      args:
+        executable: /bin/bash
+      register: python_exec
+      changed_when: false
+      failed_when: "'Python 3.13.9' not in python_exec.stdout"
+      become_user: "{{ test_user }}"
+
+    - name: Display verification results
+      ansible.builtin.debug:
+        msg:
+          - "=== Non-Root User Verification Results ==="
+          - "Test user: {{ test_user }}"
+          - "User home: {{ user_home }}"
+          - "pyenv version: {{ pyenv_version_output.stdout }}"
+          - "Python versions installed: {{ python_versions.stdout_lines }}"
+          - "Global Python version: {{ global_python.stdout }}"
+          - "Poetry version: {{ poetry_check.stdout }}"
+          - "pipx version: {{ pipx_check.stdout }}"
+          - "Python executable version: {{ python_exec.stdout.strip() }}"
+          - "All non-root user verifications passed!"

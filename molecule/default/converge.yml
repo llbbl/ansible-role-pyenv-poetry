@@ -1,0 +1,23 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+
+  pre_tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
+
+  roles:
+    - role: ansible-role-pyenv-poetry
+      vars:
+        primary_user_account: root
+        user_home_dir: /root
+        shell_type: bash
+        pyenv_version: v2.4.0
+        python_version: 3.13.9
+        pipx_version: latest
+        poetry_version: latest
+        install_poetry: true

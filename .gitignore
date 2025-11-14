@@ -10,3 +10,21 @@
 *.pub
 
 vault_pass*
+
+# Molecule
+.molecule/
+.cache/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
