@@ -84,13 +84,14 @@ jobs:
       - name: Run Molecule tests
         run: |
           if [ "${{ matrix.scenario }}" = "default" ]; then
-            poetry run molecule test -- -vvv
+            poetry run molecule test
           else
-            poetry run molecule test --scenario-name ${{ matrix.scenario }} -- -vvv
+            poetry run molecule test --scenario-name ${{ matrix.scenario }}
           fi
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
+          ANSIBLE_VERBOSITY: '2'
           DOCKER_HOST: unix:///var/run/docker.sock
           ANSIBLE_COLLECTIONS_PATH: ${{ github.workspace }}/collections
           PYTHONPATH: ${{ github.workspace }}/collections:$PYTHONPATH
