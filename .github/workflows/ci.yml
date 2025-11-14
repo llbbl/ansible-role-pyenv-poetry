@@ -76,16 +76,17 @@ jobs:
       - name: Install Ansible collections
         run: |
           mkdir -p collections
-          poetry run ansible-galaxy collection install -r requirements.yml -p collections
+          poetry run ansible-galaxy collection install -r requirements.yml -p collections --force
 
       - name: Test Docker access
         run: docker ps
 
       - name: Run Molecule tests
-        run: poetry run molecule test --scenario-name ${{ matrix.scenario }}
+        run: poetry run molecule test --scenario-name ${{ matrix.scenario }} --debug
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
+          ANSIBLE_VERBOSITY: '2'
           DOCKER_HOST: unix:///var/run/docker.sock
           ANSIBLE_COLLECTIONS_PATH: ${{ github.workspace }}/collections
           PYTHONPATH: ${{ github.workspace }}/collections:$PYTHONPATH

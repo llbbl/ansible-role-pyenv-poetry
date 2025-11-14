@@ -66,7 +66,7 @@ Install the required Ansible collections to the project's `collections/` directo
 
 ```bash
 mkdir -p collections
-poetry run ansible-galaxy collection install -r requirements.yml -p collections
+poetry run ansible-galaxy collection install -r requirements.yml -p collections --force
 ```
 
 This installs the required Ansible collections to the standard project-local collections directory:
@@ -339,7 +339,7 @@ poetry run molecule test --scenario-name zsh-shell
 # Install dependencies
 poetry install
 mkdir -p collections
-poetry run ansible-galaxy collection install -r requirements.yml -p collections
+poetry run ansible-galaxy collection install -r requirements.yml -p collections --force
 
 # Set collections path (or export in your shell)
 export ANSIBLE_COLLECTIONS_PATH="$(pwd)/collections"
