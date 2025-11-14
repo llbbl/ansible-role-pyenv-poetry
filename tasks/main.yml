@@ -20,7 +20,11 @@
 
 - name: Detect user shell
   tags: [setup, shell]
-  ansible.builtin.shell: "getent passwd {{ primary_user_account }} | cut -d: -f7"
+  ansible.builtin.shell: |
+    set -o pipefail
+    getent passwd {{ primary_user_account }} | cut -d: -f7
+  args:
+    executable: /bin/bash
   register: detected_shell
   changed_when: false
   when: shell_type == 'auto'
@@ -238,7 +242,7 @@
 
 - name: Verify Python installation
   tags: [verification, python]
-  ansible.builtin.shell: "{{ pyenv_executable }} version-name"
+  ansible.builtin.command: "{{ pyenv_executable }} version-name"
   register: python_verify
   changed_when: false
   failed_when: python_verify.stdout.strip() != python_version

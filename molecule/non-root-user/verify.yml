@@ -34,20 +34,23 @@
       register: pyenv_version_output
       changed_when: false
       failed_when: "'pyenv' not in pyenv_version_output.stdout"
+      become: true
       become_user: "{{ test_user }}"
 
     - name: Verify Python is installed
-      ansible.builtin.shell: "{{ pyenv_executable }} versions --bare"
+      ansible.builtin.command: "{{ pyenv_executable }} versions --bare"
       register: python_versions
       changed_when: false
       failed_when: "'3.13.9' not in python_versions.stdout"
+      become: true
       become_user: "{{ test_user }}"
 
     - name: Verify Python global version is set
-      ansible.builtin.shell: "{{ pyenv_executable }} version-name"
+      ansible.builtin.command: "{{ pyenv_executable }} version-name"
       register: global_python
       changed_when: false
       failed_when: global_python.stdout.strip() != '3.13.9'
+      become: true
       become_user: "{{ test_user }}"
 
     - name: Verify shell configuration file exists
@@ -94,6 +97,7 @@
       register: pipx_check
       changed_when: false
       failed_when: pipx_check.rc != 0
+      become: true
       become_user: "{{ test_user }}"
       environment:
         PATH: "{{ user_home }}/.pyenv/bin:{{ user_home }}/.pyenv/shims:{{ ansible_env.PATH }}:{{ user_home }}/.local/bin"
@@ -103,6 +107,7 @@
       register: poetry_check
       changed_when: false
       failed_when: poetry_check.rc != 0 or 'Poetry' not in poetry_check.stdout
+      become: true
       become_user: "{{ test_user }}"
       environment:
         PATH: "{{ user_home }}/.pyenv/bin:{{ user_home }}/.pyenv/shims:{{ ansible_env.PATH }}:{{ user_home }}/.local/bin"
@@ -116,6 +121,7 @@
       register: python_exec
       changed_when: false
       failed_when: "'Python 3.13.9' not in python_exec.stdout"
+      become: true
       become_user: "{{ test_user }}"
 
     - name: Display verification results

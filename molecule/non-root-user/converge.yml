@@ -4,7 +4,7 @@
   become: true
 
   roles:
-    - role: ansible-role-pyenv-poetry
+    - role: llbbl.pyenv_poetry
       vars:
         primary_user_account: testuser
         user_home_dir: /home/testuser

@@ -11,7 +11,7 @@
       when: ansible_os_family == "Debian"
 
   roles:
-    - role: ansible-role-pyenv-poetry
+    - role: llbbl.pyenv_poetry
       vars:
         primary_user_account: root
         user_home_dir: /root
