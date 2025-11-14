@@ -1,9 +1,32 @@
 ---
 # defaults file for pyenv-poetry
 
+# REQUIRED: Must be set by the user in their playbook
+# The username of the primary user account on the target system
+# Example: primary_user_account: ubuntu
+# primary_user_account:
+
+# Home directory of the user (default: /root)
 user_home_dir: /root
 
+# Shell type to configure (default: auto)
+# Options: auto, bash, zsh
+# 'auto' will detect the user's shell automatically
+shell_type: auto
+
+# Version of pyenv to install (default: v2.4.0)
 pyenv_version: v2.4.0
+
+# Python version to install via pyenv (default: 3.10.14)
 python_version: 3.10.14
 
+# pipx version to install (default: latest)
+# To pin to a specific version, set to version number like "1.4.3"
+pipx_version: latest
+
+# Poetry version to install (default: latest)
+# To pin to a specific version, set to version number like "1.8.2"
+poetry_version: latest
+
+# Whether to install Poetry (default: true)
 install_poetry: true
