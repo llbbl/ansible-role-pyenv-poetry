@@ -163,8 +163,8 @@ poetry_version: "1.8.2"  # or "latest"
 ## Medium Priority Enhancements
 
 ### 🟢 7. Improved idempotency for Poetry upgrade
-**Status:** 📋 Proposed
-**Location:** `tasks/main.yml:131-138`
+**Status:** ✅ Completed (2025-11-14)
+**Location:** `tasks/main.yml:189-224`
 **Impact:** Currently always reports changes even when no upgrade occurs
 
 **Problem:**
@@ -192,7 +192,7 @@ Upgrade task always runs when Poetry is installed, even if already at desired ve
 ---
 
 ### 🟢 8. Add task tags for selective execution
-**Status:** 📋 Proposed
+**Status:** ✅ Completed (2025-11-14)
 **Location:** Throughout `tasks/main.yml`
 **Impact:** Better user experience for targeted execution
 
@@ -227,8 +227,8 @@ ansible-playbook playbook.yml --skip-tags "dependencies"
 ---
 
 ### 🟢 9. Verify installations succeeded
-**Status:** 📋 Proposed
-**Location:** End of `tasks/main.yml`
+**Status:** ✅ Completed (2025-11-14)
+**Location:** `tasks/main.yml:226-267`
 **Impact:** Better error detection and user confidence
 
 **Problem:**
@@ -261,8 +261,8 @@ Add verification tasks at the end.
 ---
 
 ### 🟢 10. Add support for pyenv update
-**Status:** 📋 Proposed
-**Location:** `tasks/main.yml:26-30`
+**Status:** ✅ Completed (2025-11-14)
+**Location:** `tasks/main.yml:71-77`
 **Impact:** Better handling of existing installations
 
 **Problem:**

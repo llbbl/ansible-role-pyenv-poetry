@@ -87,3 +87,42 @@ Here's an example playbook that uses the `pyenv-poetry` role:
         poetry_version: "latest"  # or pin to "1.8.2"
         install_poetry: true
 ```
+
+## Using Task Tags
+
+This role supports task tags for selective execution. You can use tags to run only specific parts of the role:
+
+### Available Tags
+
+- `validation` - Variable validation tasks
+- `setup` - Initial setup tasks (shell detection, shell config)
+- `shell` - Shell configuration tasks
+- `dependencies` - System package dependencies
+- `packages` - Package installation tasks (pipx, Poetry)
+- `pyenv` - pyenv installation and configuration
+- `python` - Python installation tasks
+- `poetry` - Poetry installation tasks
+- `verification` - Installation verification tasks
+
+### Examples
+
+Run only Poetry installation:
+```bash
+ansible-playbook playbook.yml --tags "poetry"
+```
+
+Run only pyenv and Python installation (skip Poetry):
+```bash
+ansible-playbook playbook.yml --tags "pyenv,python"
+```
+
+Skip dependency installation:
+```bash
+ansible-playbook playbook.yml --skip-tags "dependencies"
+```
+
+Run only verification tasks:
+```bash
+ansible-playbook playbook.yml --tags "verification"
+```
+
