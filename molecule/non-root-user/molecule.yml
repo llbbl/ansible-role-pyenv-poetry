@@ -31,7 +31,6 @@ verifier:
 scenario:
   name: non-root-user
   test_sequence:
-    - destroy
     - syntax
     - create
     - prepare
