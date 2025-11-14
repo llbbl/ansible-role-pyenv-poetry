@@ -157,5 +157,5 @@ poetry run molecule test --scenario-name non-root-user
 
 This role uses GitHub Actions for automated testing. All pull requests are automatically tested against the full test matrix.
 
-For detailed testing instructions, see [TESTING.md](TESTING.md).
+For detailed testing instructions, see [TESTING.md](docs/TESTING.md).
 

@@ -69,7 +69,9 @@ mkdir -p collections
 poetry run ansible-galaxy collection install -r requirements.yml -p collections
 ```
 
-This installs the `community.docker` collection required by molecule-docker to the standard project-local collections directory.
+This installs the required Ansible collections to the standard project-local collections directory:
+- `community.docker` - Docker operations for molecule-docker
+- `ansible.posix` - POSIX utilities (synchronize, etc.)
 
 **Important**: You must set both `ANSIBLE_COLLECTIONS_PATH` and `PYTHONPATH` before running tests:
 - `ANSIBLE_COLLECTIONS_PATH` tells Ansible where to find collections
