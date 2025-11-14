@@ -16,7 +16,7 @@
         primary_user_account: root
         user_home_dir: /root
         shell_type: bash
-        pyenv_version: v2.4.0
+        pyenv_version: v2.6.11
         python_version: 3.13.9
         pipx_version: latest
         poetry_version: latest

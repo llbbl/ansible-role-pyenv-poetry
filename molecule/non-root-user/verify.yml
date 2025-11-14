@@ -93,7 +93,7 @@
       failed_when: root_check.changed
 
     - name: Verify pipx is installed for test user
-      ansible.builtin.command: "{{ user_home }}/.local/bin/pipx --version"
+      ansible.builtin.command: pipx --version
       register: pipx_check
       changed_when: false
       failed_when: pipx_check.rc != 0
@@ -113,16 +113,14 @@
         PATH: "{{ user_home }}/.pyenv/bin:{{ user_home }}/.pyenv/shims:{{ ansible_env.PATH }}:{{ user_home }}/.local/bin"
 
     - name: Verify Python can be executed by test user
-      ansible.builtin.shell: |
-        source {{ user_home }}/.bashrc
-        python --version
-      args:
-        executable: /bin/bash
+      ansible.builtin.command: python3 --version
       register: python_exec
       changed_when: false
       failed_when: "'Python 3.13.9' not in python_exec.stdout"
       become: true
       become_user: "{{ test_user }}"
+      environment:
+        PATH: "{{ user_home }}/.pyenv/bin:{{ user_home }}/.pyenv/shims:{{ ansible_env.PATH }}:{{ user_home }}/.local/bin"
 
     - name: Display verification results
       ansible.builtin.debug:

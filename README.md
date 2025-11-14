@@ -51,7 +51,7 @@ This will apply the tasks and configurations defined in the `llbbl.pyenv-poetry`
 
 The following variables are defined in `defaults/main.yml`:
 
-- `pyenv_version` (default: "v2.4.0"): The version of pyenv to install.
+- `pyenv_version` (default: "v2.6.11"): The version of pyenv to install.
 - `python_version` (default: "3.13.9"): The version of Python to install using pyenv.
 - `pipx_version` (default: "latest"): The version of pipx to install. Set to a specific version like "1.4.3" to pin.
 - `poetry_version` (default: "latest"): The version of Poetry to install. Set to a specific version like "1.8.2" to pin.
@@ -81,7 +81,7 @@ Here's an example playbook that uses the `pyenv-poetry` role:
         primary_user_account: root
         user_home_dir: /root
         shell_type: auto  # auto-detect shell, or specify "bash" or "zsh"
-        pyenv_version: "v2.4.0"
+        pyenv_version: "v2.6.11"
         python_version: "3.13.9"
         pipx_version: "latest"  # or pin to "1.4.3"
         poetry_version: "latest"  # or pin to "1.8.2"

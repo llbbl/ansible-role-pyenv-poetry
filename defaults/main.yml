@@ -14,8 +14,8 @@ user_home_dir: /root
 # 'auto' will detect the user's shell automatically
 shell_type: auto
 
-# Version of pyenv to install (default: v2.4.0)
-pyenv_version: v2.4.0
+# Version of pyenv to install (default: v2.6.11)
+pyenv_version: v2.6.11
 
 # Python version to install via pyenv (default: 3.13.9)
 python_version: 3.13.9
